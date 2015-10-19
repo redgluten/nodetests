@@ -2,6 +2,8 @@ var http         = require('http');
 var url          = require('url');
 var qs           = require('querystring');
 var EventEmitter = require('events').EventEmitter;
+var include      = require('./include');
+var pack         = require('./package');
 
 var e = new EventEmitter();
 
@@ -11,7 +13,7 @@ var server = http.createServer(function (req, res) {
 
 	// HTTP code response
 	res.writeHead(200, {
-		"Content-Type": "text/html"
+		"Content-Type": "text/html; charset=utf-8",
 	});
 
 	if ('action' in query && query['action'] === 'stop') {
@@ -21,6 +23,8 @@ var server = http.createServer(function (req, res) {
 
 	res.write('<p>Chemin demandé : ' + path + '</p>');
 	res.write('<p>Var : ' + query['var'] + '</p>');
+
+	pack.test();
 
 	// Got to the end of the body
 	res.end();
