@@ -1,20 +1,38 @@
-var http = require('http');
-var url  = require('url');
+var http         = require('http');
+var url          = require('url');
+var qs           = require('querystring');
+var EventEmitter = require('events').EventEmitter;
+
+var e = new EventEmitter();
 
 var server = http.createServer(function (req, res) {
-	console.log('Requête entrante');
-	
+	var path  = url.parse(req.url).pathname;
+	var query = qs.parse(url.parse(req.url).query)
+
 	// HTTP code response
 	res.writeHead(200, {
 		"Content-Type": "text/html"
 	});
-	
-	var path = url.parse(req.url).pathname;
-	
+
+	if ('action' in query && query['action'] === 'stop') {
+		this.close();
+		e.emit('serverstop', 'Arrêt du serveur par l’utilisateur');
+	};
+
 	res.write('<p>Chemin demandé : ' + path + '</p>');
-	
+	res.write('<p>Var : ' + query['var'] + '</p>');
+
 	// Got to the end of the body
-	res.end('<p>OK</p>');
+	res.end();
 });
 
+e.on('serverstop', function(message) {
+	console.log('serverstop reçu');
+	server.close(function() {
+		console.log('close');
+	})
+})
+server.on('close', function() {
+	console.log('Arrêt du serveur');
+});
 server.listen(8000);
